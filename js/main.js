@@ -64,21 +64,43 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Simple form handling
+  // Contact form handling — submits to FormSubmit via AJAX so it stays on the page
   const form = document.getElementById('contact-form');
   if (form) {
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       const btn = form.querySelector('.btn');
-      btn.textContent = 'Message sent!';
-      btn.style.background = '#27ae60';
-      btn.style.borderColor = '#27ae60';
-      setTimeout(() => {
-        btn.textContent = 'Send message';
-        btn.style.background = '';
-        btn.style.borderColor = '';
-        form.reset();
-      }, 3000);
+      const originalText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+
+      const ajaxUrl = form.action.replace('formsubmit.co/', 'formsubmit.co/ajax/');
+
+      fetch(ajaxUrl, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: new FormData(form)
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error('Request failed');
+          btn.textContent = 'Message sent!';
+          btn.style.background = '#27ae60';
+          btn.style.borderColor = '#27ae60';
+          form.reset();
+        })
+        .catch(() => {
+          btn.textContent = 'Something went wrong — try again';
+          btn.style.background = '#c0392b';
+          btn.style.borderColor = '#c0392b';
+        })
+        .finally(() => {
+          btn.disabled = false;
+          setTimeout(() => {
+            btn.textContent = originalText;
+            btn.style.background = '';
+            btn.style.borderColor = '';
+          }, 4000);
+        });
     });
   }
 });

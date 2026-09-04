@@ -104,7 +104,10 @@
 
           <div class="contact-form">
             <h2>Send a message</h2>
-            <form id="contact-form">
+            <form id="contact-form" action="https://formsubmit.co/hetpalett@ziggo.nl" method="POST">
+              <input type="hidden" name="_subject" value="New message via palett.nl contact form">
+              <input type="hidden" name="_template" value="table">
+              <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
               <div class="form-group">
                 <label for="naam">Name *</label>
                 <input type="text" id="naam" name="naam" required>
