@@ -71,6 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       const btn = form.querySelector('.btn');
       const originalText = btn.textContent;
+      let note = form.querySelector('.form-error');
       btn.disabled = true;
       btn.textContent = 'Sending...';
 
@@ -81,17 +82,28 @@ document.addEventListener('DOMContentLoaded', () => {
         headers: { 'Accept': 'application/json' },
         body: new FormData(form)
       })
-        .then((res) => {
-          if (!res.ok) throw new Error('Request failed');
+        .then((res) => res.json().catch(() => ({})).then((data) => ({ ok: res.ok, data })))
+        .then(({ ok, data }) => {
+          // FormSubmit can answer HTTP 200 with success:"false" (e.g. form not activated yet)
+          if (!ok || String(data.success) !== 'true') throw new Error('Request failed');
           btn.textContent = 'Message sent!';
           btn.style.background = '#27ae60';
           btn.style.borderColor = '#27ae60';
           form.reset();
+          if (note) note.hidden = true;
         })
         .catch(() => {
-          btn.textContent = 'Something went wrong — try again';
+          btn.textContent = 'Not sent';
           btn.style.background = '#c0392b';
           btn.style.borderColor = '#c0392b';
+          if (!note) {
+            note = document.createElement('p');
+            note.className = 'form-error';
+            note.style.cssText = 'margin-top:12px;color:#c0392b;font-size:0.9rem;';
+            form.appendChild(note);
+          }
+          note.textContent = 'Sorry, your message could not be sent. Please email hetpalett@ziggo.nl or call 06-41388006.';
+          note.hidden = false;
         })
         .finally(() => {
           btn.disabled = false;
